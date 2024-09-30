@@ -60,4 +60,11 @@ Definire un liguaggio univoco e' utile per evitare fraintendimenti.
 Spiega che un modello non e' la coppia reale di una determinata cosa ma un costrutto umano che ci aiuta a dare un senso ai sistemi del mondo reale.
 Per essere piu' chiaro fa un esempio di una mappa. La stessa mappa puo' rappresentare dettagli specifici, per esempio la mappa di una citta' che mostra la metropolitana piuttosto che le strade della citta'. Oppure la divisione in fusi orari piuttosto che le zone di calore.
 
+### CHAPTER 3
+## Managing Domain Complexity
+
+
+In questo capitolo viene introdotto il concetto di "bounded context". Lo fa facendo un esempio, la stessa parola "lead" ha significato diverso per il team di marketing e il team di vendita. Vengono proposte varie soluzioni non funzionali o non ottimali. Viene proposto a questo punto di utilizzare i Bounded context. Li accomuna alle mappe del paragrafo precedente. E proprio come in quelle mappe servono per far vedere alcuni dettagli specifici anche nei vari contesti servono informazioni diverse.
+Quindi nel contesto del reparto di vendite il "lead" avra' determinate caratteristiche mentre nel contesto di marketing il lead ne avra' altre. Inoltre ogni bunded context ha un ubiquitous language specifico. Quindi il lead nei vari contesti assume significati leggermente diversi.
+
 
