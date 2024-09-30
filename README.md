@@ -41,3 +41,23 @@ Domain experts
 
 E' importante indetificare queste persone le quali saranno le persone che daranno un impatto piu' importante sul prodotto.
 Sono le persone che conoscono in maniera approfondita il settore. Non sono gli sviluppatori, nemmeno gli analisti. Sono coloro che hanno una conoscenza approfondita del problema ed esperienza diretta, coloro che potrebbero anche utilizzare il software.
+
+
+### CHAPTER 2
+## Discovering Domain Knowledge
+
+Questo capitolo e' concentrato nella spiegazione dell'importanza dell' "ubiquitous language".
+
+### Business Problems
+L'obbiettivo aziendare e' fornire una soluzione per i problemi dei clienti.
+La parola problema non deve essere interpretata come un problema matematico o qualcosa che puo' essere risolto con la matematica.
+
+Durante il capitolo spiega l'importanza di evitare tanti livelli di comunicazione perche' ad ogni livello si perdono informazioni (telefono senza fili)
+Definire un liguaggio univoco e' utile per evitare fraintendimenti.
+
+### What Is a Model?
+
+Spiega che un modello non e' la coppia reale di una determinata cosa ma un costrutto umano che ci aiuta a dare un senso ai sistemi del mondo reale.
+Per essere piu' chiaro fa un esempio di una mappa. La stessa mappa puo' rappresentare dettagli specifici, per esempio la mappa di una citta' che mostra la metropolitana piuttosto che le strade della citta'. Oppure la divisione in fusi orari piuttosto che le zone di calore.
+
+
