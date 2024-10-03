@@ -101,7 +101,26 @@ Viene applicato attravero l'utilizzo di 3 patterns:
 ##### Conformist
 Il fornitore non ha reale interesse per supportare le necessita' del cliente. Utilizza un approccio "Take it or leave it". Il cliente puo' decidere se aderire o meno a questo tipo di contratto. Solitamente sono contratti Standard industriali (ad esempio API. REST). Quindi il fornitore ha totale controllo sul codice rilasciato.
 
-##### Anticorruption layer
+##### Anticorruption layer (ACL)
+Come nel pattern conformist l'autorita' e' sblianciata sul upstream service. In questo caso il servizio downstream non si vuole adattare completamente e crea un layer intermedio che fa da interprete.
+Quando viene applicato:
+- Quando il servizio destinatario contiente il core subdomain. In quanto dovrebbe essere totalmente indipendente dal fornitore.
+- Quando il servizio upstream e' ineficiente
+- Quando il servizio upstream cambia spesso, in questo modo si cambia solo il meccanismo di traduzione.
 
 ##### Open-Host Service
+E' l'inverso del ACL, il fornitore ci tiene ai clienti quindi si adatta alle loro esigenze. Crea un servizio che slega il codice interno da quello esposto (chiamato pub‐
+lished language). Quando deve cambiare qualcosa implementa diverse versioni del servizio e il cliente decidera' di cambiare versione una volta pronto.
 
+
+#### Separate Ways
+Questa e' l'ultima opzione di collaborazione. Non collaborare affatto.
+
+##### Communication Issues
+Quando ci sono dei problemi di comunicazione gravi conviene dupplicare le funzionalita' nei vari bounded contexts.
+
+##### Generic Subdomains
+Il sottodominio duplicato da la possibilita' di prendere strade separate.  Nei generic subdomain che sono facili da integrare puo' essere conveniente duplicare le integrazioni invece che avere un servizio condiviso. Un esempio puo' essere il servizio di Logging.
+
+##### Model Differences
+Quando c'e' troppa differenza tra i modelli dei vari contesti conviene andare in vie separate.
