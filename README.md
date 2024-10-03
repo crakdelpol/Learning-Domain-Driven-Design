@@ -67,4 +67,41 @@ Per essere piu' chiaro fa un esempio di una mappa. La stessa mappa puo' rapprese
 In questo capitolo viene introdotto il concetto di "bounded context". Lo fa facendo un esempio, la stessa parola "lead" ha significato diverso per il team di marketing e il team di vendita. Vengono proposte varie soluzioni non funzionali o non ottimali. Viene proposto a questo punto di utilizzare i Bounded context. Li accomuna alle mappe del paragrafo precedente. E proprio come in quelle mappe servono per far vedere alcuni dettagli specifici anche nei vari contesti servono informazioni diverse.
 Quindi nel contesto del reparto di vendite il "lead" avra' determinate caratteristiche mentre nel contesto di marketing il lead ne avra' altre. Inoltre ogni bunded context ha un ubiquitous language specifico. Quindi il lead nei vari contesti assume significati leggermente diversi.
 
+### CHAPTER 4
+## Integrating Bounded Contexts
+
+I confini tra i vari bounded context devono essere chiari. Pero' tra vari contesti ci puo'/deve essere comunicazione, ma se ognuno ha una linguaggio diverso la comunicazione puo' risultare difficile. Per questo vengono utilizzate delle forme di comunicazione chiamate "contratto".
+Ce ne sono di tre tipi: 
+- cooperation
+- customer–supplier
+- separate ways
+
+#### Cooperation
+In quest ocaso i team dovranno avere un ottima comunicazione, il successo di un team dipende dal successo dell'altro. 
+Ci sono principalmente 2 pattern di integrazione: Partnership, Shared Kernel
+
+##### Partnership
+E' basato su una comunicazione molto frequente, infatti non e' indicato per i team distribuiti.
+Ogni team comunica con l'altro riguardo i cambiamenti delle API o dei modelli (per esempio) e l'altro team si occupa di integrare le modifiche.
+
+##### Shared Kernel
+Ci puo' essere il caso in cui alcuni modelli possano essere utili in multipli contesti, ad esempio il modello per l'autorizzazione. 
+Questo modello e' importante che abbia solo gli elementi necessari per i vari contesti. Questo perche', per definizione, viola il principio di isolamento dei contesti.
+Per capire quando usare il shared kernel bisogna analizzare il costo di dupplicazione rispetto al costo di coordinazione. Se il costo di dupplicazione e' basso e' giusto che ogni contesto abbia i suoi modelli. Se invece e' altro potrebbe essere utile utilizzare questo approccio. Quando il costo di dupplicazione e' alto? Sopratutto quando il modello cambia spesso. Comunicare con tutti i vari moduli le modifiche potrebbe essere impegnativo e generare errori. 
+Violando il principio descritto sopra il suo utilizzo deve essere giustificato.
+
+#### Customer–supplier
+Diversamente dal pattern di cooperation il customer supplier ha due team dove il successo e' indipendente l'uno dall'altro.
+Il contratto di integrazione puo' essere definito da entrambe le parti (upstream team e downstream team)
+Viene applicato attravero l'utilizzo di 3 patterns:
+- conformist
+- anticorruption layer
+- open-host service
+
+##### Conformist
+Il fornitore non ha reale interesse per supportare le necessita' del cliente. Utilizza un approccio "Take it or leave it". Il cliente puo' decidere se aderire o meno a questo tipo di contratto. Solitamente sono contratti Standard industriali (ad esempio API. REST). Quindi il fornitore ha totale controllo sul codice rilasciato.
+
+##### Anticorruption layer
+
+##### Open-Host Service
 
