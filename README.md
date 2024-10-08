@@ -124,3 +124,51 @@ Il sottodominio duplicato da la possibilita' di prendere strade separate.  Nei g
 
 ##### Model Differences
 Quando c'e' troppa differenza tra i modelli dei vari contesti conviene andare in vie separate.
+
+
+### CHAPTER 5
+
+#### Implementing Simple Business Logic
+In questo capitolo vengono spiegate 2 tecniche per gestire la logica di business "semplice".
+- Transaction script
+- Acrive records
+
+##### Transaction script
+Procedura molto semplice che permette di accedere direttamente al database e salvare i dati. C'e' da fare particolare attenzione nel caso in cui vengono eseguite due operazioni ma una delle due fallisce lasciando lo stato del sistema non consistente. Questa e' la principale difficolta' da affrontare.
+
+Consiglia quindi di utilizzare un sistema a transazioni come questo
+```
+public class LogVisit
+{
+ ...
+ public void Execute(Guid userId, DataTime visitedOn)
+ {
+ try
+ {
+ _db.StartTransaction();
+ _db.Execute(@"UPDATE Users SET last_visit=@p1
+ WHERE user_id=@p2",
+ visitedOn, userId);
+ _db.Execute(@"INSERT INTO VisitsLog(user_id, visit_date)
+ VALUES(@p1, @p2)",
+ userId, visitedOn);
+ _db.Commit();
+ } catch {
+Transaction Script | 65
+ _db.Rollback();
+ throw;
+ }
+ }
+}
+```
+Tutto e' semplice se agiamo in un sistema monolite con utilizzo di database che gestisce le transazioni. Diventa piu' complesso se dobbiamo fare la stessa cosa se le operazioni sono collegate attraverso un bus di messaggi o se utilizziamo un db che non gestisce le transazioni.
+Viene fatto un cenno alle operazioni idempotenti: ovvero quelle operazioni che possono essere eseguite piu' volte senza modificare piu' volte lo stato del sistema.
+
+##### Active Record
+`Un oggetto che racchiude una riga in una tabella o vista di database, incapsula l'accesso al database e aggiunge la logica di dominio su tali dati.`
+In questa tecnica non si ha accesso direttamente al database ma l'accesso viene fatto attraverso un tool, come tutti i tool il libro spiega che bisogna valutare bene pro e contro.
+Oltre alla struttura dati questi oggetti implementano anche dei metodi chiamati CRUD. Di conseguenza gli oggetti sono fortemente accomppiati al database. Il tool utilizzato e' chiamato ORM (object-relational mapping).
+Grazie a questo framework si e' piu' slegati al servizio di storage, pero' comunque crea un forte accoppiamento tra i dati sul database e i modelli di dominio. 
+
+Per questi motivi l'utilizzo di queste 2 tecniche e' fortemente sconsigliato nel core subdomain.
+
