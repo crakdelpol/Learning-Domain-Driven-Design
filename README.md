@@ -172,3 +172,148 @@ Grazie a questo framework si e' piu' slegati al servizio di storage, pero' comun
 
 Per questi motivi l'utilizzo di queste 2 tecniche e' fortemente sconsigliato nel core subdomain.
 
+
+### CHAPTER 6
+Tackling Complex Business Logic
+
+Questo capitolo spiega come gestire domini piu' complessi.
+
+Domain Model
+E' un pattern che ha l'intenzione di gestire logiche piu' complesse. (non CRUD)
+E' un pattern che comprende sia il comportamento che i dati, le componenti di questo pattern sono:
+- aggregati
+- value objects
+- domain events
+- domain services
+L'obbiettivo di questi componenti e' mettere davanti a tutto la logica di dominio
+
+Vediamoli nello specifico
+
+##### Value object
+E' un oggetto che puo' essere identificato per la composizione dei suoi valori 
+Un esempio possono essere i colori, 2 colori con la stessa tonalita' e' lo stesso colore, se cambia 1 tonalita' e' un'altro colore.
+All'interno del value object puo' essere inserita la logica di validazione del dato. 
+Sono molto utili all'interno del dominio perche' "parlano" la stessa lingua dell'ubiquitous language. (esempi pratici possono essere l'altezza, il peso, i numeri di telefono) 
+Per esempio l'altezza puo' avere all'interno logica di conversione:
+
+```
+var heightMetric = Height.Metric(180);
+var heightImperial = Height.Imperial(5, 3);
+var string1 = heightMetric.ToString(); // "180cm"
+var string2 = heightImperial.ToString(); // "5 feet 3 inches"
+var string3 = heightMetric.ToImperial().ToString(); // "5 feet 11 inches"
+var firstIsHigher = heightMetric > heightImperial; // true
+```
+Altro esempio il numero di cellulare
+``
+var phone = PhoneNumber.Parse("+359877123503");
+var country = phone.Country; // "BG"
+var phoneType = phone.PhoneType; // "MOBILE"
+var isValid = PhoneNumber.IsValid("+972120266680"); // false
+``
+I value object sono implementati come oggetti immutabili, ovvero, il cambiamento di un valore implica la creazione di un nuovo oggetto.
+Quando usare i value objects:
+La risposta piu' semplice e' ogni volta che puoi.  Oltre a rendere piu' chiaro e "parlante" il codice, incapsulare la logica di business dentro i giusti oggetti invece che in giro per il codice, i value object essendo immutabili rendono il codice piu' sicuro e libero da "side effects".
+Dal punto di vista di business domain possono essere utilizzati per descrivere le proprieta' di altri oggetti. 
+
+##### Enitities
+
+Al contrario dei value object le entita' richiedono un specifico campo per essere distinte.
+Un esempio puo' essere l'oggetto persona. 
+Due persone possono avere lo stesso nome ma essere due persone diverse. In questo caso per distinguerle avremo bisogno di un campo aggiuntivo, solitamente chiamato _id (identifier) solitamente questo campo e' un Value Object. L'identificativo dovrebbe essere univoco e immutabile. Contrariamente ai value object tutte le propriteta' di un entita' (ad eccezione dell'id) sono mutabili.
+
+##### Aggregates
+
+Gli aggregati sono entita', richiede un identificativo specifico e ci si aspetta che lo stato cambi durante il ciclo di vita dell'oggetto.
+L'obbiettivo dell'aggregato e' di proteggere la consistenza dei dati.
+Siccome i dati degli aggregati possono mutare c'e' la possibilita' che questi dati vengano corrotti. Per evitare questo gli aggregati hanno un confine ben definito.
+All'interno degli aggregati e' presente la logica per essere sicuri che i cambiamenti non contraddicano le logiche di busness. Per fare questo i dati dell'aggregato possono essere modificati soltanto attraverso i suoi metodi e i componenti esterni possono solo "leggere" il suo stato.
+I metodi per modificare gli aggregati sono spesso definiti attraverso dei comandi.
+Ci sono due modi per implementare i comandi
+Rendere il nome del metodo chiaro
+
+```
+public class Ticket
+{
+ ...
+ public void AddMessage(UserId from, string body)
+ {
+ var message = new Message(from, body);
+ _messages.Append(message);
+ }
+ ...
+}
+```
+Rendere il nome dell'oggetto chiaro
+```
+public class Ticket
+{
+ ...
+ public void Execute(AddMessage cmd)
+ {
+ var message = new Message(cmd.from, cmd.body);
+ _messages.Append(message);
+ }
+ ...
+}
+```
+I metodi degli aggregati vengono invocati all'interno di un Application layer, ecco un esempio:
+
+```
+    public ExecutionResult Escalate(TicketId id, EscalationReason reason)
+    {
+        try
+        {
+            var ticket = _ticketRepository.Load(id);
+            var cmd = new Escalate(reason);
+            ticket.Execute(cmd);
+            _ticketRepository.Save(ticket);
+            return ExecutionResult.Success();
+        }
+        catch (ConcurrencyException ex)
+        {
+            return ExecutionResult.Error(ex);
+        }
+    }
+```
+Da porre particolare attenzione al controllo di concorrenza (ConcurrencyException).
+Solitamente viene gestito attraverso un sistema di versionamento interno dell'aggregato: 
+```
+class Ticket
+{
+ TicketId _id;
+ int _version;
+ ...
+}
+```
+in modo tale che nel database verra' poi gestito in questa maniera:
+```
+01 UPDATE tickets
+02 SET ticket_status = @new_status,
+03 agg_version = agg_version + 1
+04 WHERE ticket_id=@id and agg_version=@expected_version;
+```
+L'aggregato dovrebbe comportarsi anche come un oggetto unico a livello di persistenza, quindi un confine transazionale. O viene persistito tutto o se c'e' qualche problema non viene persistita nessuna modifica. Inoltre non dovrebbe esistere nessun sistema che modifica piu' aggregati contemporaneamente. Ogni transazione e' un modifica ad un aggregato specifico.
+Le entita' non dovrebbero essere utilizzate come pattern indipendenti ma come parte di un aggregato. La differenza principale tra i due e' che le entita' sono parte di un aggregato mentre l'aggregato rappresenta un oggetto di dominio. Ci sono dei scenari che due entita' sono dipendenti una dall'altra. In questo caso fanno parte dello stesso aggregato.
+
+Siccome  tutti gli oggetti all'interno dell'aggregato condividono lo stesso confine transazionale potrebbero esserci problemi di performance e scalabilita'. Per questo motivo l'aggregato dovrebbe essere piu' piccolo possibile e contenere i dati strettamente necessari per applicare la logica di business. Si possono fare riferimenti ad altri aggregati attraverso l'identificativo. 
+Per capire se un entita' appartiene ad un aggregato o no bisogna analizzare lo stato dell'aggregato e capire se quell'entita' puo' renderlo invalido. Se e' cosi' allora fara' parte di quell'aggregato altrimenti no.
+
+Domain events
+
+Gli eventi di dominio sono dei messaggi che descrivono un evento significativo che e' successo nel dominio.
+Siccome descrivono qualcosa avvenuto nel passato sono descritti con un nome al passato remoto.
+```
+• Ticket assigned
+• Ticket escalated
+• Message received
+```
+
+Lo scopo e' descrivere cosa e' successo nel dominio e fornire i dati relativi a quell'evento.
+Gli eventi fanno parte degli aggregati e sono loro a scatenarli.
+
+##### Domain services
+
+Prima o poi, potresti imbatterti in una logica aziendale che non appartiene a nessun aggregato o oggetto valore, o che sembra essere rilevante per più aggregati. In tali casi, la progettazione basata sul dominio propone di implementare la logica come un servizio di dominio.
+I domain service sono oggetti stateless che implementano logica di business. Nella maggior parte dei casi orchestrano chiamate a vari componenti del sistema.
+I servizi di dominio semplificano il coordinamento del lavoro di più aggregati. Tuttavia, è importante tenere sempre a mente la limitazione del modello di aggregazione di modificare solo un'istanza di un aggregato in una transazione di database. I servizi di dominio non sono una scappatoia per aggirare questa limitazione. La regola di un'istanza per transazione è ancora valida. Invece, i servizi di dominio si prestano all'implementazione di una logica di calcolo che richiede la lettura dei dati di più aggregati.
