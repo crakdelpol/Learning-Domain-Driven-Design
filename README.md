@@ -317,3 +317,63 @@ Gli eventi fanno parte degli aggregati e sono loro a scatenarli.
 Prima o poi, potresti imbatterti in una logica aziendale che non appartiene a nessun aggregato o oggetto valore, o che sembra essere rilevante per più aggregati. In tali casi, la progettazione basata sul dominio propone di implementare la logica come un servizio di dominio.
 I domain service sono oggetti stateless che implementano logica di business. Nella maggior parte dei casi orchestrano chiamate a vari componenti del sistema.
 I servizi di dominio semplificano il coordinamento del lavoro di più aggregati. Tuttavia, è importante tenere sempre a mente la limitazione del modello di aggregazione di modificare solo un'istanza di un aggregato in una transazione di database. I servizi di dominio non sono una scappatoia per aggirare questa limitazione. La regola di un'istanza per transazione è ancora valida. Invece, i servizi di dominio si prestano all'implementazione di una logica di calcolo che richiede la lettura dei dati di più aggregati.
+
+
+### CHAPTER 8
+Architectural Patterns
+
+###### Business Logic Versus Architectural Patterns
+La logica di business e' la parte piu' importante del software. Il codice deve essere in grado di reggere una continua modifica dei requisiti, quindi e' altrettanto importante. Ovvimanete svolge un'azione di supporto. 
+Scegliere la maniera piu' appropriata per organizzare la code base o il pattern architetturale corretto e' cruciale per supportare  l'implementazione della logica di business e ridurre la manutenzione a lungo termine.
+
+##### Layered Architecture
+
+E' il pattern piu' comune, si struttura in layer orizontali principalmente sono 3: 
+- presentation layer
+- business logic layer
+- data access layer
+
+
+il presentation layer e' la parte user interface con i suoi consumers. Puo' essere una Graphical user interface (GUI), Command-line interface (CLI), API for programmatic integration with other systems, Subscription to events in a message broker, Message topics for publishing outgoing events.
+
+business logic layer e' il livello che si occupa di implementare la logica di business. Questa e' la parte dove c'e' il cuore del software.
+
+data access layer si occupa di persistere e fare il retrieve dei dati. Alcuni strumenti che possono essere utilizzati sono un database, un message bus o un object storage. 
+
+La comunicazione avviene dall'esterno verso l'interno. Questo per evitare che il presentation layer abbia informazioni riguardanti il data access layer. Non e' di suo interesse di come vengono salvati i dati. 
+E' abbastanza diffuso vedere un ulteriore livello: il service layer. Agisce come un intermediario tra il presentation layer e il business logic layer.
+
+Quando usare un architettura a strati.
+E' adatto quando la logica di business e' implementata usando un transaction script o un active record pattern. Si possono usare anche per pattern piu' complessi ma la struttura che vedremo in seguito sono piu' adatte.
+
+##### Ports & Adapters
+
+E' un pattern piu' adatto per logiche di business piu' complesse. E' conosciuto anche come architettura esagonale, architettura a cipolla (onion) o clean architecture.
+Viene separata l'implementazione dalla firma, si basa sul principio di Dpendency Inversion. Il business logic layer ha un ruolo centrale.
+Il suo obbiettivo principale e' disaccoppiare la logica di business dai componenti infrastrutturali.
+Quindi il business layer utilizza dei servizi chiamati "ports" implementati da "adapters".
+Termini simili
+Application layer = service layer = use case layer
+Business logic layer = domain layer = core layer
+Quando usarlo: 
+Si adatta perfettamente quando viene utilizzato domain model pattern.
+
+##### Command-Query Responsibility Segregation
+Si basa sugli stessi principi per la logica di business di port e adapters ma cambia il modo in cui vengono salvati e gestiti i dati.
+Consente la rappresentazione dei dati del sistema in piu' modelli persistenti.
+E' strettamente correlato all'event sourcing 
+Come suggerisce il nome, il pattern separa le responsabilità dei modelli del sistema. Esistono due tipi di modelli: il modello di esecuzione dei comandi e i modelli di lettura.
+
+Il Command model, modello di esecuzione di comandi, e' descritto come un azione e modifica lo stato di sistema. Il modello e' usato per implementare la logica di buiness, validare le regole e imporre le invarianti.
+
+Il read Model (chiamato anche projections) sono dei modelli strutturati per fornire dei dati agli altri sistemi. Non ha nessuna logica al suo interno.
+
+Ci sono due modi per generare projections: Sincrone e Asincrone. 
+Sincrono:
+viene fatta la query sul db
+Aggiorna il dato
+Salva il lato sull'ultimo record processato. (verra' poi utilizzato nella prossima iterazione)
+Asincrone:
+Praticamente vengono scritti tutti i messaggi che vengono mandati nel bus, poi si occuperera' il sistema di projection di leggere tutti i messaggi e ricostruire il read model.
+
+Il command puo' ritornare delle informazioni nel senso che se va in errore l'esecuzione dei comandi, quest'ultimo puo' evidenziarne il motivo.
