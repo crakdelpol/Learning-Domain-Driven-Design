@@ -492,4 +492,18 @@ Cos'e'
 
 Mostriamo l'esempio della campagna di cui si parlava precedentemente:
 
-![image info](sagapattern.png)
+![Saga info](sagapattern.png)
+
+Sebbene il modello saga orchestri una transazione multicomponente, gli stati dei componenti coinvolti sono alla fine coerenti. E sebbene la saga alla fine esegua i comandi rilevanti, non ci sono due transazioni che possono essere considerate atomiche. Ciò è correlato a un altro principio di progettazione aggregata:
+
+~Only the data within an aggregate’s boundaries can be considered strongly consistent. Everything outside is eventually consistent.~
+
+Bisogna quindi stare attenti a non abusare di questo pattern e valutare correttamente se due entity fanno o non fanno parte dello stesso aggregato.
+
+Spesso il saga pattern si confonde con il Process Manager pattern che andremo ad analizzare qui sotto.
+
+###### Process Manager
+
+Mentre il saga processa eventi e manda comandi il process manager e' un unita' di processo che mantiene lo stato delle sequente e determina lo step successivo.
+Ecco un esempio pratico, questo e' il caso di pianificazione di un viaggio
+![Process manager info](processmanagerpattern.png)
