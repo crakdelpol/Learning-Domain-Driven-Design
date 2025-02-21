@@ -377,3 +377,116 @@ Asincrone:
 Praticamente vengono scritti tutti i messaggi che vengono mandati nel bus, poi si occuperera' il sistema di projection di leggere tutti i messaggi e ricostruire il read model.
 
 Il command puo' ritornare delle informazioni nel senso che se va in errore l'esecuzione dei comandi, quest'ultimo puo' evidenziarne il motivo.
+
+
+### CHAPTER 9 Communication Patterns
+
+
+###### Model translation
+
+E' lo spostamento di informazioni tra un aggregato e l'altro, tra due contesti diversi.
+Nel capitolo 3 abbiamo trattato le diverse tipologie di comunicazione tra i vari conteesti.
+La traduzione degli oggetti puo' essere fatta dal supplier, dal consumer o da entrambi.
+Ci sono due tipi di transazioni: stateless e statefull.
+
+####### Stateless Model Translation
+In questo caso il contesto che contiene le informazioni delle traduzioni (Open Host Service per l'upstream, Anti Corruption Layer per il downstream) implementa un proxy design pattern per fare la conversione.
+Questa operazione puo' essere fatta in maniera sincrona o asincrona.
+
+Sinncrona: tipicamente in questo caso la logica di transformazione e' all'interno del bounded context. In alcuni casi potrebbe essere utile esternalizzare questa conversione tramite API Gateway. Questo codice viene scritto in un modulo chiamato Interchange Context.
+Asinncrona: Viene fatta attraverso un message proxy. E' un intermediario che ha in ingresso i messaggi dal contesto sorgente, ci applica la conversione e manda il risultato in un target subscriber. Inoltre puo' essere utile per filtrare i messaggi irrilevanti. E' fondamentale quando si implementa un integrazione con un open-host service. In questo caso e' essenziale differenziare tra eventi privati e pubblici.
+
+####### Statefull Model Translation
+
+Puo' essere utilizzata per processi di conversione piu' complessi, come per esempio quando le informazioni non arrivano da un dominio soltato ma sono richieste le informazioni da piu' domini.
+Viene fatta quindi un aggregazione di diversi messaggi. Per questa conversione non e' sufficiente un api gateway, occorre trovare un modo per salvarsi le informazioni da ottenere in un secondo momento. Questo puo' essere fatto tramite un persistent storage (FE database). Ci sono alcuni strumenti che lo fanno: stream-process platform (Kafka, AWS Kinesis, etc.), or a batching solution (Apache NiFi, AWS Glue, Spark, etc.)
+
+###### Integrating Aggregates
+
+In questa parte del capitolo viene spiegata come mandare eventi in maniera sicura attraverso 3 pattern: 
+ - Outbox pattern
+ - Saga pattern
+ - Process manager
+
+Prima e' opportuno fare capire perche' sono importanti queste implementazioni:
+Considera il seguente codice
+
+```
+ public class Campaign
+ {
+     ...
+     List<DomainEvent> _events;
+     IMessageBus _messageBus;
+     ...
+
+     public void Deactivate(string reason)
+     {
+         for (l in _locations.Values())
+         {
+            l.Deactivate();
+         }
+    
+         IsActive = false;
+    
+         var newEvent = new CampaignDeactivated(_id, reason);
+         _events.Append(newEvent);
+         _messageBus.Publish(newEvent);
+     }
+ }
+```
+Questa implementazione e' semplice ma sbagliata, pubblicare l'evento da dentro l'aggregato e' sbagliato per due motivi: primo l'evento rischia di essere mandato e processato prima che venga salvato l'aggregato. Secondo cosa succede se il salvataggio sul database fallisce? La transazione fallisce l'aggregato rimane in uno stato incoerente con l'evento pubblicato.
+Guardiamo un'altro esempio:
+```
+ public class ManagementAPI
+ {
+         ...
+         private readonly IMessageBus _messageBus;
+         private readonly ICampaignRepository _repository;
+         ...
+         public ExecutionResult DeactivateCampaign(CampaignId id, string reason){
+             try
+             {
+                var campaign = repository.Load(id);
+                campaign.Deactivate(reason);
+                _repository.CommitChanges(campaign);
+    
+                var events = campaign.GetUnpublishedEvents();
+                for (IDomainEvent e in events){
+                    _messageBus.publish(e);
+                }
+                campaign.ClearUnpublishedEvents();
+             } catch(Exception ex) {
+                 ...
+             }
+         }
+ }
+```
+In questo caso abbiamo spostato l'invio del messaggio nell'application service, ma anche in questo caso non possiamo essere sicuri della consistenza dell'aggregato con l'evento mandato. Questo perche' se in quel momento il database funziona ma non sta funzionando il message bus, l'aggregato viene aggiornato ma non viene mandato l'evento.
+
+Questi due edge case possono essere gestiti con l'out of the box pattern.
+
+####### Outbox pattern
+
+Questo pattern assicura la consistenza tra aggregato ed eventi seguendo il seguente algoritmo:
+ - entrambi gli oggetti (aggregato e evento) sono committati nella stessa transazione atomica.
+ - ci sara' un relay di messaggi che recupera gli eventi di dominio appena inviati al database
+ - il relay pubblica gli eventi sul message bus
+ - una volta pubblicati il relay marca come pubblicati gli eventi o li cancella completamente.
+
+In caso di un database relazionale e' conveniente sfruttare l'atomicita' delle transazioni per tenere la tabella degli eventi separata da quella dei dati.
+In caso di database noSql che non supporta le transazioni atomiche all'interno dello stesso document ci saranno sia i dati che l'evento.
+
+Il relay puo' funzionare in due maniere: pull based o push based
+ - Pull: Polling publisher il relay continua a fare query per ottenere gli eventi non mandati e li manda.
+ - Push: transaction log tailing in questo caso e' il database che invoca il relay quando vengono inseriti nuovi records.
+
+E' importante capire che questo pattern manda gli eventi almeno una volta, quindi possono esserci anche 2 pubblicazioni (gli eventi devono essere idempotenti)
+
+####### Saga pattern
+
+Uno dei pilastri del DDD e' che una transazione modifica solo un aggregato. Ma ci puo' essere l'esigenza di implementare un processo che modifica diversi aggregati. 
+Un esempio puo' essere una campagna pubblicitaria, questa coinvolge 2 aggregati la campagna e il publisher (chi la pubblica) mettere queste due entita' all'interno dello stesso aggregato potrebbe essere un overkill, sono chiaramente due entita' di business differenti e hanno diverse responsabilita'. In questo caso puo' essere utile ricorrere al pattern saga.
+Cos'e'
+** Sara e' un long-running business process, ascolta gli eventi emessi da componenti rilevanti e invia comandi ad altri componenti, se un esecuzione fallisce la saga intraprende azioni di compensazione per garantire che il sistema resti in uno stato consistente** 
+
+Mostriamo l'esempio della campagna di cui si parlava precedentemente: 
