@@ -1,5 +1,5 @@
 # Learning-Domain-Driven-Design
-Summary of book 
+Summary of book
 
 ### CHAPTER 1
 ## Analyzing Business Domains
@@ -10,7 +10,7 @@ E' il servizion che una compagnia offre ai propri e potenziali clienti. Ogni azi
 Subdomains:
 I domini vengono suddivisi in sotto domini, ognunco con un obbiettivo specifico e diverso.
 
-Tipi di subdomains: 
+Tipi di subdomains:
 - core subdomain
 - generic subdomain
 - supporting subdomain
@@ -71,13 +71,13 @@ Quindi nel contesto del reparto di vendite il "lead" avra' determinate caratteri
 ## Integrating Bounded Contexts
 
 I confini tra i vari bounded context devono essere chiari. Pero' tra vari contesti ci puo'/deve essere comunicazione, ma se ognuno ha una linguaggio diverso la comunicazione puo' risultare difficile. Per questo vengono utilizzate delle forme di comunicazione chiamate "contratto".
-Ce ne sono di tre tipi: 
+Ce ne sono di tre tipi:
 - cooperation
 - customer–supplier
 - separate ways
 
 #### Cooperation
-In quest ocaso i team dovranno avere un ottima comunicazione, il successo di un team dipende dal successo dell'altro. 
+In quest ocaso i team dovranno avere un ottima comunicazione, il successo di un team dipende dal successo dell'altro.
 Ci sono principalmente 2 pattern di integrazione: Partnership, Shared Kernel
 
 ##### Partnership
@@ -85,9 +85,9 @@ E' basato su una comunicazione molto frequente, infatti non e' indicato per i te
 Ogni team comunica con l'altro riguardo i cambiamenti delle API o dei modelli (per esempio) e l'altro team si occupa di integrare le modifiche.
 
 ##### Shared Kernel
-Ci puo' essere il caso in cui alcuni modelli possano essere utili in multipli contesti, ad esempio il modello per l'autorizzazione. 
+Ci puo' essere il caso in cui alcuni modelli possano essere utili in multipli contesti, ad esempio il modello per l'autorizzazione.
 Questo modello e' importante che abbia solo gli elementi necessari per i vari contesti. Questo perche', per definizione, viola il principio di isolamento dei contesti.
-Per capire quando usare il shared kernel bisogna analizzare il costo di dupplicazione rispetto al costo di coordinazione. Se il costo di dupplicazione e' basso e' giusto che ogni contesto abbia i suoi modelli. Se invece e' altro potrebbe essere utile utilizzare questo approccio. Quando il costo di dupplicazione e' alto? Sopratutto quando il modello cambia spesso. Comunicare con tutti i vari moduli le modifiche potrebbe essere impegnativo e generare errori. 
+Per capire quando usare il shared kernel bisogna analizzare il costo di dupplicazione rispetto al costo di coordinazione. Se il costo di dupplicazione e' basso e' giusto che ogni contesto abbia i suoi modelli. Se invece e' altro potrebbe essere utile utilizzare questo approccio. Quando il costo di dupplicazione e' alto? Sopratutto quando il modello cambia spesso. Comunicare con tutti i vari moduli le modifiche potrebbe essere impegnativo e generare errori.
 Violando il principio descritto sopra il suo utilizzo deve essere giustificato.
 
 #### Customer–supplier
@@ -168,7 +168,7 @@ Viene fatto un cenno alle operazioni idempotenti: ovvero quelle operazioni che p
 `Un oggetto che racchiude una riga in una tabella o vista di database, incapsula l'accesso al database e aggiunge la logica di dominio su tali dati.`
 In questa tecnica non si ha accesso direttamente al database ma l'accesso viene fatto attraverso un tool, come tutti i tool il libro spiega che bisogna valutare bene pro e contro.
 Oltre alla struttura dati questi oggetti implementano anche dei metodi chiamati CRUD. Di conseguenza gli oggetti sono fortemente accomppiati al database. Il tool utilizzato e' chiamato ORM (object-relational mapping).
-Grazie a questo framework si e' piu' slegati al servizio di storage, pero' comunque crea un forte accoppiamento tra i dati sul database e i modelli di dominio. 
+Grazie a questo framework si e' piu' slegati al servizio di storage, pero' comunque crea un forte accoppiamento tra i dati sul database e i modelli di dominio.
 
 Per questi motivi l'utilizzo di queste 2 tecniche e' fortemente sconsigliato nel core subdomain.
 
@@ -185,15 +185,15 @@ E' un pattern che comprende sia il comportamento che i dati, le componenti di qu
 - value objects
 - domain events
 - domain services
-L'obbiettivo di questi componenti e' mettere davanti a tutto la logica di dominio
+  L'obbiettivo di questi componenti e' mettere davanti a tutto la logica di dominio
 
 Vediamoli nello specifico
 
 ##### Value object
-E' un oggetto che puo' essere identificato per la composizione dei suoi valori 
+E' un oggetto che puo' essere identificato per la composizione dei suoi valori
 Un esempio possono essere i colori, 2 colori con la stessa tonalita' e' lo stesso colore, se cambia 1 tonalita' e' un'altro colore.
-All'interno del value object puo' essere inserita la logica di validazione del dato. 
-Sono molto utili all'interno del dominio perche' "parlano" la stessa lingua dell'ubiquitous language. (esempi pratici possono essere l'altezza, il peso, i numeri di telefono) 
+All'interno del value object puo' essere inserita la logica di validazione del dato.
+Sono molto utili all'interno del dominio perche' "parlano" la stessa lingua dell'ubiquitous language. (esempi pratici possono essere l'altezza, il peso, i numeri di telefono)
 Per esempio l'altezza puo' avere all'interno logica di conversione:
 
 ```
@@ -214,12 +214,12 @@ var isValid = PhoneNumber.IsValid("+972120266680"); // false
 I value object sono implementati come oggetti immutabili, ovvero, il cambiamento di un valore implica la creazione di un nuovo oggetto.
 Quando usare i value objects:
 La risposta piu' semplice e' ogni volta che puoi.  Oltre a rendere piu' chiaro e "parlante" il codice, incapsulare la logica di business dentro i giusti oggetti invece che in giro per il codice, i value object essendo immutabili rendono il codice piu' sicuro e libero da "side effects".
-Dal punto di vista di business domain possono essere utilizzati per descrivere le proprieta' di altri oggetti. 
+Dal punto di vista di business domain possono essere utilizzati per descrivere le proprieta' di altri oggetti.
 
 ##### Enitities
 
 Al contrario dei value object le entita' richiedono un specifico campo per essere distinte.
-Un esempio puo' essere l'oggetto persona. 
+Un esempio puo' essere l'oggetto persona.
 Due persone possono avere lo stesso nome ma essere due persone diverse. In questo caso per distinguerle avremo bisogno di un campo aggiuntivo, solitamente chiamato _id (identifier) solitamente questo campo e' un Value Object. L'identificativo dovrebbe essere univoco e immutabile. Contrariamente ai value object tutte le propriteta' di un entita' (ad eccezione dell'id) sono mutabili.
 
 ##### Aggregates
@@ -277,7 +277,7 @@ I metodi degli aggregati vengono invocati all'interno di un Application layer, e
     }
 ```
 Da porre particolare attenzione al controllo di concorrenza (ConcurrencyException).
-Solitamente viene gestito attraverso un sistema di versionamento interno dell'aggregato: 
+Solitamente viene gestito attraverso un sistema di versionamento interno dell'aggregato:
 ```
 class Ticket
 {
@@ -296,7 +296,7 @@ in modo tale che nel database verra' poi gestito in questa maniera:
 L'aggregato dovrebbe comportarsi anche come un oggetto unico a livello di persistenza, quindi un confine transazionale. O viene persistito tutto o se c'e' qualche problema non viene persistita nessuna modifica. Inoltre non dovrebbe esistere nessun sistema che modifica piu' aggregati contemporaneamente. Ogni transazione e' un modifica ad un aggregato specifico.
 Le entita' non dovrebbero essere utilizzate come pattern indipendenti ma come parte di un aggregato. La differenza principale tra i due e' che le entita' sono parte di un aggregato mentre l'aggregato rappresenta un oggetto di dominio. Ci sono dei scenari che due entita' sono dipendenti una dall'altra. In questo caso fanno parte dello stesso aggregato.
 
-Siccome  tutti gli oggetti all'interno dell'aggregato condividono lo stesso confine transazionale potrebbero esserci problemi di performance e scalabilita'. Per questo motivo l'aggregato dovrebbe essere piu' piccolo possibile e contenere i dati strettamente necessari per applicare la logica di business. Si possono fare riferimenti ad altri aggregati attraverso l'identificativo. 
+Siccome  tutti gli oggetti all'interno dell'aggregato condividono lo stesso confine transazionale potrebbero esserci problemi di performance e scalabilita'. Per questo motivo l'aggregato dovrebbe essere piu' piccolo possibile e contenere i dati strettamente necessari per applicare la logica di business. Si possono fare riferimenti ad altri aggregati attraverso l'identificativo.
 Per capire se un entita' appartiene ad un aggregato o no bisogna analizzare lo stato dell'aggregato e capire se quell'entita' puo' renderlo invalido. Se e' cosi' allora fara' parte di quell'aggregato altrimenti no.
 
 Domain events
@@ -323,12 +323,12 @@ I servizi di dominio semplificano il coordinamento del lavoro di più aggregati.
 Architectural Patterns
 
 ###### Business Logic Versus Architectural Patterns
-La logica di business e' la parte piu' importante del software. Il codice deve essere in grado di reggere una continua modifica dei requisiti, quindi e' altrettanto importante. Ovvimanete svolge un'azione di supporto. 
+La logica di business e' la parte piu' importante del software. Il codice deve essere in grado di reggere una continua modifica dei requisiti, quindi e' altrettanto importante. Ovvimanete svolge un'azione di supporto.
 Scegliere la maniera piu' appropriata per organizzare la code base o il pattern architetturale corretto e' cruciale per supportare  l'implementazione della logica di business e ridurre la manutenzione a lungo termine.
 
 ##### Layered Architecture
 
-E' il pattern piu' comune, si struttura in layer orizontali principalmente sono 3: 
+E' il pattern piu' comune, si struttura in layer orizontali principalmente sono 3:
 - presentation layer
 - business logic layer
 - data access layer
@@ -338,9 +338,9 @@ il presentation layer e' la parte user interface con i suoi consumers. Puo' esse
 
 business logic layer e' il livello che si occupa di implementare la logica di business. Questa e' la parte dove c'e' il cuore del software.
 
-data access layer si occupa di persistere e fare il retrieve dei dati. Alcuni strumenti che possono essere utilizzati sono un database, un message bus o un object storage. 
+data access layer si occupa di persistere e fare il retrieve dei dati. Alcuni strumenti che possono essere utilizzati sono un database, un message bus o un object storage.
 
-La comunicazione avviene dall'esterno verso l'interno. Questo per evitare che il presentation layer abbia informazioni riguardanti il data access layer. Non e' di suo interesse di come vengono salvati i dati. 
+La comunicazione avviene dall'esterno verso l'interno. Questo per evitare che il presentation layer abbia informazioni riguardanti il data access layer. Non e' di suo interesse di come vengono salvati i dati.
 E' abbastanza diffuso vedere un ulteriore livello: il service layer. Agisce come un intermediario tra il presentation layer e il business logic layer.
 
 Quando usare un architettura a strati.
@@ -355,20 +355,20 @@ Quindi il business layer utilizza dei servizi chiamati "ports" implementati da "
 Termini simili
 Application layer = service layer = use case layer
 Business logic layer = domain layer = core layer
-Quando usarlo: 
+Quando usarlo:
 Si adatta perfettamente quando viene utilizzato domain model pattern.
 
 ##### Command-Query Responsibility Segregation
 Si basa sugli stessi principi per la logica di business di port e adapters ma cambia il modo in cui vengono salvati e gestiti i dati.
 Consente la rappresentazione dei dati del sistema in piu' modelli persistenti.
-E' strettamente correlato all'event sourcing 
+E' strettamente correlato all'event sourcing
 Come suggerisce il nome, il pattern separa le responsabilità dei modelli del sistema. Esistono due tipi di modelli: il modello di esecuzione dei comandi e i modelli di lettura.
 
 Il Command model, modello di esecuzione di comandi, e' descritto come un azione e modifica lo stato di sistema. Il modello e' usato per implementare la logica di buiness, validare le regole e imporre le invarianti.
 
 Il read Model (chiamato anche projections) sono dei modelli strutturati per fornire dei dati agli altri sistemi. Non ha nessuna logica al suo interno.
 
-Ci sono due modi per generare projections: Sincrone e Asincrone. 
+Ci sono due modi per generare projections: Sincrone e Asincrone.
 Sincrono:
 viene fatta la query sul db
 Aggiorna il dato
@@ -389,24 +389,24 @@ Nel capitolo 3 abbiamo trattato le diverse tipologie di comunicazione tra i vari
 La traduzione degli oggetti puo' essere fatta dal supplier, dal consumer o da entrambi.
 Ci sono due tipi di transazioni: stateless e statefull.
 
-####### Stateless Model Translation
+###### Stateless Model Translation
 In questo caso il contesto che contiene le informazioni delle traduzioni (Open Host Service per l'upstream, Anti Corruption Layer per il downstream) implementa un proxy design pattern per fare la conversione.
 Questa operazione puo' essere fatta in maniera sincrona o asincrona.
 
 Sinncrona: tipicamente in questo caso la logica di transformazione e' all'interno del bounded context. In alcuni casi potrebbe essere utile esternalizzare questa conversione tramite API Gateway. Questo codice viene scritto in un modulo chiamato Interchange Context.
 Asinncrona: Viene fatta attraverso un message proxy. E' un intermediario che ha in ingresso i messaggi dal contesto sorgente, ci applica la conversione e manda il risultato in un target subscriber. Inoltre puo' essere utile per filtrare i messaggi irrilevanti. E' fondamentale quando si implementa un integrazione con un open-host service. In questo caso e' essenziale differenziare tra eventi privati e pubblici.
 
-####### Statefull Model Translation
+###### Statefull Model Translation
 
 Puo' essere utilizzata per processi di conversione piu' complessi, come per esempio quando le informazioni non arrivano da un dominio soltato ma sono richieste le informazioni da piu' domini.
 Viene fatta quindi un aggregazione di diversi messaggi. Per questa conversione non e' sufficiente un api gateway, occorre trovare un modo per salvarsi le informazioni da ottenere in un secondo momento. Questo puo' essere fatto tramite un persistent storage (FE database). Ci sono alcuni strumenti che lo fanno: stream-process platform (Kafka, AWS Kinesis, etc.), or a batching solution (Apache NiFi, AWS Glue, Spark, etc.)
 
 ###### Integrating Aggregates
 
-In questa parte del capitolo viene spiegata come mandare eventi in maniera sicura attraverso 3 pattern: 
- - Outbox pattern
- - Saga pattern
- - Process manager
+In questa parte del capitolo viene spiegata come mandare eventi in maniera sicura attraverso 3 pattern:
+- Outbox pattern
+- Saga pattern
+- Process manager
 
 Prima e' opportuno fare capire perche' sono importanti queste implementazioni:
 Considera il seguente codice
@@ -465,34 +465,31 @@ In questo caso abbiamo spostato l'invio del messaggio nell'application service, 
 
 Questi due edge case possono essere gestiti con l'out of the box pattern.
 
- ####### Outbox pattern
+###### Outbox pattern
 
 Questo pattern assicura la consistenza tra aggregato ed eventi seguendo il seguente algoritmo:
- - entrambi gli oggetti (aggregato e evento) sono committati nella stessa transazione atomica.
- - ci sara' un relay di messaggi che recupera gli eventi di dominio appena inviati al database
- - il relay pubblica gli eventi sul message bus
- - una volta pubblicati il relay marca come pubblicati gli eventi o li cancella completamente.
+- entrambi gli oggetti (aggregato e evento) sono committati nella stessa transazione atomica.
+- ci sara' un relay di messaggi che recupera gli eventi di dominio appena inviati al database
+- il relay pubblica gli eventi sul message bus
+- una volta pubblicati il relay marca come pubblicati gli eventi o li cancella completamente.
 
 In caso di un database relazionale e' conveniente sfruttare l'atomicita' delle transazioni per tenere la tabella degli eventi separata da quella dei dati.
 In caso di database noSql che non supporta le transazioni atomiche all'interno dello stesso document ci saranno sia i dati che l'evento.
 
 Il relay puo' funzionare in due maniere: pull based o push based
- - Pull: Polling publisher il relay continua a fare query per ottenere gli eventi non mandati e li manda.
- - Push: transaction log tailing in questo caso e' il database che invoca il relay quando vengono inseriti nuovi records.
+- Pull: Polling publisher il relay continua a fare query per ottenere gli eventi non mandati e li manda.
+- Push: transaction log tailing in questo caso e' il database che invoca il relay quando vengono inseriti nuovi records.
 
 E' importante capire che questo pattern manda gli eventi almeno una volta, quindi possono esserci anche 2 pubblicazioni (gli eventi devono essere idempotenti)
 
- ####### Saga pattern
+###### Saga pattern
 
-Uno dei pilastri del DDD e' che una transazione modifica solo un aggregato. Ma ci puo' essere l'esigenza di implementare un processo che modifica diversi aggregati. 
+Uno dei pilastri del DDD e' che una transazione modifica solo un aggregato. Ma ci puo' essere l'esigenza di implementare un processo che modifica diversi aggregati.
 Un esempio puo' essere una campagna pubblicitaria, questa coinvolge 2 aggregati la campagna e il publisher (chi la pubblica) mettere queste due entita' all'interno dello stesso aggregato potrebbe essere un overkill, sono chiaramente due entita' di business differenti e hanno diverse responsabilita'. In questo caso puo' essere utile ricorrere al pattern saga.
 Cos'e'
 
-** Saga e' un long-running business process, ascolta gli eventi emessi da componenti rilevanti e invia comandi ad altri componenti, se un esecuzione fallisce la saga intraprende azioni di compensazione per garantire che il sistema resti in uno stato consistente** 
+**Saga e' un long-running business process, ascolta gli eventi emessi da componenti rilevanti e invia comandi ad altri componenti, se un esecuzione fallisce la saga intraprende azioni di compensazione per garantire che il sistema resti in uno stato consistente**
 
+Mostriamo l'esempio della campagna di cui si parlava precedentemente:
 
-
-
-Mostriamo l'esempio della campagna di cui si parlava precedentemente: 
-
-![alt text](Screenshot 2025-02-21 112305.png "Title")
+![image info](sagapattern.png)
