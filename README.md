@@ -497,7 +497,7 @@ Mostriamo l'esempio della campagna di cui si parlava precedentemente:
 
 Sebbene il modello saga orchestri una transazione multicomponente, gli stati dei componenti coinvolti sono alla fine coerenti. E sebbene la saga alla fine esegua i comandi rilevanti, non ci sono due transazioni che possono essere considerate atomiche. Ciò è correlato a un altro principio di progettazione aggregata:
 
-~Only the data within an aggregate’s boundaries can be considered strongly consistent. Everything outside is eventually consistent.~
+_Only the data within an aggregate’s boundaries can be considered strongly consistent. Everything outside is eventually consistent._
 
 Bisogna quindi stare attenti a non abusare di questo pattern e valutare correttamente se due entity fanno o non fanno parte dello stesso aggregato.
 
