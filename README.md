@@ -393,8 +393,9 @@ Ci sono due tipi di transazioni: stateless e statefull.
 In questo caso il contesto che contiene le informazioni delle traduzioni (Open Host Service per l'upstream, Anti Corruption Layer per il downstream) implementa un proxy design pattern per fare la conversione.
 Questa operazione puo' essere fatta in maniera sincrona o asincrona.
 
-Sinncrona: tipicamente in questo caso la logica di transformazione e' all'interno del bounded context. In alcuni casi potrebbe essere utile esternalizzare questa conversione tramite API Gateway. Questo codice viene scritto in un modulo chiamato Interchange Context.
-Asinncrona: Viene fatta attraverso un message proxy. E' un intermediario che ha in ingresso i messaggi dal contesto sorgente, ci applica la conversione e manda il risultato in un target subscriber. Inoltre puo' essere utile per filtrare i messaggi irrilevanti. E' fondamentale quando si implementa un integrazione con un open-host service. In questo caso e' essenziale differenziare tra eventi privati e pubblici.
+Sincrona: tipicamente in questo caso la logica di transformazione e' all'interno del bounded context. In alcuni casi potrebbe essere utile esternalizzare questa conversione tramite API Gateway. Questo codice viene scritto in un modulo chiamato Interchange Context.
+
+Asincrona: Viene fatta attraverso un message proxy. E' un intermediario che ha in ingresso i messaggi dal contesto sorgente, ci applica la conversione e manda il risultato in un target subscriber. Inoltre puo' essere utile per filtrare i messaggi irrilevanti. E' fondamentale quando si implementa un integrazione con un open-host service. In questo caso e' essenziale differenziare tra eventi privati e pubblici.
 
 ###### Statefull Model Translation
 
