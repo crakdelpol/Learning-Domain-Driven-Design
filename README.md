@@ -465,7 +465,7 @@ In questo caso abbiamo spostato l'invio del messaggio nell'application service, 
 
 Questi due edge case possono essere gestiti con l'out of the box pattern.
 
-####### Outbox pattern
+ ####### Outbox pattern
 
 Questo pattern assicura la consistenza tra aggregato ed eventi seguendo il seguente algoritmo:
  - entrambi gli oggetti (aggregato e evento) sono committati nella stessa transazione atomica.
@@ -482,11 +482,17 @@ Il relay puo' funzionare in due maniere: pull based o push based
 
 E' importante capire che questo pattern manda gli eventi almeno una volta, quindi possono esserci anche 2 pubblicazioni (gli eventi devono essere idempotenti)
 
-####### Saga pattern
+ ####### Saga pattern
 
 Uno dei pilastri del DDD e' che una transazione modifica solo un aggregato. Ma ci puo' essere l'esigenza di implementare un processo che modifica diversi aggregati. 
 Un esempio puo' essere una campagna pubblicitaria, questa coinvolge 2 aggregati la campagna e il publisher (chi la pubblica) mettere queste due entita' all'interno dello stesso aggregato potrebbe essere un overkill, sono chiaramente due entita' di business differenti e hanno diverse responsabilita'. In questo caso puo' essere utile ricorrere al pattern saga.
 Cos'e'
-** Sara e' un long-running business process, ascolta gli eventi emessi da componenti rilevanti e invia comandi ad altri componenti, se un esecuzione fallisce la saga intraprende azioni di compensazione per garantire che il sistema resti in uno stato consistente** 
+
+** Saga e' un long-running business process, ascolta gli eventi emessi da componenti rilevanti e invia comandi ad altri componenti, se un esecuzione fallisce la saga intraprende azioni di compensazione per garantire che il sistema resti in uno stato consistente** 
+
+
+
 
 Mostriamo l'esempio della campagna di cui si parlava precedentemente: 
+
+![alt text](Screenshot 2025-02-21 112305.png "Title")
